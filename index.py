@@ -1,16 +1,16 @@
 import boto3
-import botocore
+from typing import TypeVar,List
 
 ec2_resource = boto3.resource('ec2',region_name='us-east-1')
 
-def list_instance():
+def list_instance() -> list(boto3.resources.factory.ec2.Instance):
     instance_id_list = []
     for instance in ec2_resource.instances.all():
         instance_id_list.append(instance)
     
     return instance_id_list
 
-def prepare_tags_for_iterface(instance_tags):
+def prepare_tags_for_iterface(instance_tags) :
     interface_tags = []
 
     if instance_tags != None:
@@ -44,7 +44,7 @@ def prepare_tags_for_volume(instance_tags):
 
     return volume_tags
 
-def attach_tags_to_interface(instance,interface_tags):
+def attach_tags_to_interface(instance,interface_tags) -> None:
     for each_interface in instance.network_interfaces:
 
         if each_interface.tag_set == None:
@@ -53,9 +53,8 @@ def attach_tags_to_interface(instance,interface_tags):
                 DryRun=True,
                 Tags=interface_tags
             )
-            print(response)
 
-def attach_tags_to_volume(instance,volume_tags):
+def attach_tags_to_volume(instance,volume_tags) -> None:
     for each_volume in instance.volumes.all():
         if each_volume.tags == None:
             response = each_volume.create_tags(
@@ -63,7 +62,7 @@ def attach_tags_to_volume(instance,volume_tags):
                 Tags=volume_tags
             )
 
-def ec2_tags_to_interface(instance_list):
+def ec2_tags_to_interface(instance_list) -> None:
     for instance in instance_list:
         interface_tags = prepare_tags_for_iterface(instance.tags)
         if len(interface_tags) > 0:
@@ -71,7 +70,7 @@ def ec2_tags_to_interface(instance_list):
         else:
             print("{instance_id} has to no tags to attach to network interface".format(instance_id = instance.id))
 
-def ec2_tags_to_volume(instance_list):
+def ec2_tags_to_volume(instance_list) -> None:
     
     for instance in instance_list:
         volume_tags = prepare_tags_for_volume(instance.tags)
@@ -81,10 +80,11 @@ def ec2_tags_to_volume(instance_list):
             print("{instance_id} has to no tags to attach to volumes".format(instance_id = instance.id))
 
 
-def main():
+def main() -> None:
     instance_list = list_instance()
+    print(type(instance_list[0]))
     # ec2_tags_to_interface(instance_list)
-    ec2_tags_to_volume(instance_list)
+    # ec2_tags_to_volume(instance_list)
 
 if __name__ == "__main__":
     main()
