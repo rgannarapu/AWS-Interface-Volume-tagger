@@ -4,8 +4,5 @@ on: [push]
 jobs:
   Explore-GitHub-Actions:
     runs-on: self-hosted
-jobs:
-  example-job:
-    name: Save output
     steps:
       - run: echo "Hello world"
